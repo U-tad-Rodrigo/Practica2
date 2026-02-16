@@ -1,12 +1,40 @@
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-CMakeUserPresets.json
+# Build directories
+/cmake-build-*/
+/build/
+/out/
+/Testing/
+/install/
+
+# CMake generated files at repo root
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+/build.ninja
+/.ninja_deps
+/.ninja_log
+/compile_commands.json
+
+# CLion / JetBrains
+/.idea/
+*.iml
+
+# Windows / MSVC artifacts
+*.suo
+*.user
+*.userosscache
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.pdb
+*.obj
+*.exe
+*.dll
+*.ilk
+
+# Logs and temp
+*.log
+*.tmp
+*.swp
+*.bak
