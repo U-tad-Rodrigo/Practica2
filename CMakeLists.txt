@@ -19,6 +19,13 @@ link_directories(${CMAKE_SOURCE_DIR}/externalLibs/glfw/lib)
 set(SOURCES
     Practica2/MainPractica2.cpp
     Practica2/common.h
+    Practica2/Vertex.h
+    Practica2/InputManager.h
+    Practica2/InputManager.cpp
+    Practica2/Object3D.h
+    Practica2/Object3D.cpp
+    Practica2/Render.h
+    Practica2/Render.cpp
 )
 
 # Create executable
