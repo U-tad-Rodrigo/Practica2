@@ -4,21 +4,23 @@
 #include "Object3D.h"
 #include "InputManager.h"
 
+typedef struct {
+    unsigned int VAO;
+    unsigned int VBO;
+    unsigned int EBO;
+} bufferObject;
+
 class Render {
 public:
     Render(int width, int height);
     ~Render();
-    typedef struct {
-        unsigned int VAO;
-        unsigned int VBO;
-        unsigned int EBO;
-    }bufferObject_t;
-    vector<Object3D*> ObjectList;
-    map<unsigned int, bufferObject_t> bufferMap;
-    GLFWwindow* window = nullptr;
-    bool initialized = false;
+
+    GLFWwindow* window;
+    vector<Object3D*> objectList;
+    map<Object3D*, bufferObject> bufferObjects;
     int width;
     int height;
+    bool initialized;
 
     void initGL();
     void putObject(Object3D* obj);

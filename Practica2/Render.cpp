@@ -1,10 +1,9 @@
-#include "Render.h"
-#include "InputManager.h"
+#pragma once
 
-Render::Render(int width, int height) {
-    this->width = width;
-    this->height = height;
-    this->window = nullptr;
+#include "Render.h"
+
+
+Render::Render(int width, int height) : width(width), height(height), window(nullptr), initialized(false) {
 }
 
 Render::~Render() {
@@ -16,49 +15,132 @@ Render::~Render() {
 
 void Render::initGL() {
     initialized = false;
-    if (!glfwInit())
-    {
-        std::cerr << "ERROR: Failed to initialize glfw" << std::endl;
+
+    if (!glfwInit()) {
+        std::cerr << "ERROR: Failed to initialize GLFW" << std::endl;
         return;
     }
+
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    this->window = glfwCreateWindow(width, height, "Practica 2", nullptr, nullptr);
+
+    window = glfwCreateWindow(width, height, "Practica 2 - Triangulo Rotando", nullptr, nullptr);
+
     if (!window) {
-        std::cerr << "ERROR: Failed to create window" << std::endl;
+        std::cerr << "ERROR: Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return;
     }
+
     glfwMakeContextCurrent(window);
+
     if (!gladLoadGL(glfwGetProcAddress)) {
-        std::cerr << "ERROR: Failed to initialize OpenGL" << std::endl;
+        std::cerr << "ERROR: Failed to initialize OpenGL/GLAD" << std::endl;
         glfwTerminate();
         return;
     }
+
+    glViewport(0, 0, width, height);
+    glEnable(GL_VERTEX_ARRAY);
+
     InputManager::initInputManager(window);
+
     initialized = true;
 }
 
 void Render::putObject(Object3D* obj) {
-    bufferObject_t bo = {0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF};
+    if (!obj) return;
+
+    objectList.push_back(obj);
+
+    bufferObject bo;
     glGenVertexArrays(1, &bo.VAO);
     glGenBuffers(1, &bo.VBO);
     glGenBuffers(1, &bo.EBO);
 
     glBindVertexArray(bo.VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, bo.VBO);
-    glBufferData(GL_ARRAY_BUFFER, obj->vertexList.size() * sizeof(vertex_t), obj->vertexList.data(), GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ARRAY_BUFFER, bo.VBO);
+    glBufferData(GL_ARRAY_BUFFER, obj->vertexList.size() * sizeof(Vertex), obj->vertexList.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bo.EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, obj->idList.size() * sizeof(int), obj->idList.data(), GL_STATIC_DRAW);
+
+    // Configurar punteros de vértices (posición)
+    glVertexPointer(4, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, position));
+    glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, color));
+
+    glBindVertexArray(0);
+
+    bufferObjects[obj] = bo;
 }
 
 void Render::removeObject(Object3D* obj) {
+    if (!obj) return;
 
+    auto it = std::find(objectList.begin(), objectList.end(), obj);
+    if (it != objectList.end()) {
+        objectList.erase(it);
+    }
+
+    auto bufferIt = bufferObjects.find(obj);
+    if (bufferIt != bufferObjects.end()) {
+        glDeleteBuffers(1, &bufferIt->second.VBO);
+        glDeleteBuffers(1, &bufferIt->second.EBO);
+        glDeleteVertexArrays(1, &bufferIt->second.VAO);
+        bufferObjects.erase(bufferIt);
+    }
 }
 
 void Render::drawGL() {
+    glClear(GL_COLOR_BUFFER_BIT);
 
+    for (Object3D* obj : objectList) {
+        auto bufferIt = bufferObjects.find(obj);
+        if (bufferIt == bufferObjects.end()) continue;
+
+        bufferObject& bo = bufferIt->second;
+
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glMultMatrixf(obj->modelMatrix.mat);
+
+        glBindVertexArray(bo.VAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bo.EBO);
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glDrawElements(GL_TRIANGLES, obj->idList.size(), GL_UNSIGNED_INT, 0);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+
+        glBindVertexArray(0);
+
+        glPopMatrix();
+    }
 }
 
 void Render::mainLoop() {
+    if (!initialized) {
+        std::cerr << "ERROR: Render not initialized" << std::endl;
+        return;
+    }
 
+    double lastTime = glfwGetTime();
+
+    while (!glfwWindowShouldClose(window)) {
+        double currentTime = glfwGetTime();
+        double deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
+        InputManager::updateInputs();
+
+        for (Object3D* obj : objectList) {
+            obj->move(deltaTime);
+        }
+
+        drawGL();
+
+        glfwSwapBuffers(window);
+    }
 }
 

@@ -1,13 +1,9 @@
-//
-// Created by Rodrigo on 16/02/2026.
-//
 #pragma once
 
+#include "libMath.h"
 
 typedef struct {
-    float x;
-    float y;
-    float z;
-    float w;
-}vec4x4f;
+    vec4float position;
+    vec4float color;
+} Vertex;
 
