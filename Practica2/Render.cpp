@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Render.h"
 
 
@@ -50,44 +48,43 @@ void Render::initGL() {
 void Render::putObject(Object3D* obj) {
     if (!obj) return;
 
-    objectList.push_back(obj);
-
     bufferObject bo;
     glGenVertexArrays(1, &bo.VAO);
     glGenBuffers(1, &bo.VBO);
     glGenBuffers(1, &bo.EBO);
 
     glBindVertexArray(bo.VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, bo.VBO);
     glBufferData(GL_ARRAY_BUFFER, obj->vertexList.size() * sizeof(Vertex), obj->vertexList.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bo.EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, obj->idList.size() * sizeof(int), obj->idList.data(), GL_STATIC_DRAW);
 
-    // Configurar punteros de vértices (posición)
     glVertexPointer(4, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, position));
     glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
     glBindVertexArray(0);
 
     bufferObjects[obj] = bo;
+    objectList.push_back(obj);
 }
 
 void Render::removeObject(Object3D* obj) {
     if (!obj) return;
 
-    auto it = std::find(objectList.begin(), objectList.end(), obj);
-    if (it != objectList.end()) {
-        objectList.erase(it);
+    if (bufferObjects.count(obj)) {
+        bufferObject& bo = bufferObjects[obj];
+        glDeleteBuffers(1, &bo.VBO);
+        glDeleteBuffers(1, &bo.EBO);
+        glDeleteVertexArrays(1, &bo.VAO);
+        bufferObjects.erase(obj);
     }
 
-    auto bufferIt = bufferObjects.find(obj);
-    if (bufferIt != bufferObjects.end()) {
-        glDeleteBuffers(1, &bufferIt->second.VBO);
-        glDeleteBuffers(1, &bufferIt->second.EBO);
-        glDeleteVertexArrays(1, &bufferIt->second.VAO);
-        bufferObjects.erase(bufferIt);
+    for (size_t i = 0; i < objectList.size(); i++) {
+        if (objectList[i] == obj) {
+            objectList.erase(objectList.begin() + i);
+            break;
+        }
     }
 }
 
@@ -95,17 +92,14 @@ void Render::drawGL() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     for (Object3D* obj : objectList) {
-        auto bufferIt = bufferObjects.find(obj);
-        if (bufferIt == bufferObjects.end()) continue;
-
-        bufferObject& bo = bufferIt->second;
+        if (!bufferObjects.count(obj)) continue;
 
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glMultMatrixf(obj->modelMatrix.mat);
 
-        glBindVertexArray(bo.VAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bo.EBO);
+        glBindVertexArray(bufferObjects[obj].VAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferObjects[obj].EBO);
 
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
