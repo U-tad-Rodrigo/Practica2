@@ -27,10 +27,7 @@ void Object3D::createTriangle() {
     v3.color = make_vector4f(0.0f, 0.0f, 1.0f, 1.0f);
     vertexList.push_back(v3);
 
-
-    idList.push_back(0);
-    idList.push_back(1);
-    idList.push_back(2);
+    idList = {0, 1, 2};
 }
 
 void Object3D::move(double timeStep) {

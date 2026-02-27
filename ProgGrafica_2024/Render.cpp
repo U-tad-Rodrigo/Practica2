@@ -1,7 +1,11 @@
 #include "Render.h"
 
 
-Render::Render(int width, int height) : width(width), height(height), window(nullptr), initialized(false) {
+Render::Render(int width, int height) {
+    this->width = width;
+    this->height = height;
+    window = nullptr;
+    initialized = false;
 }
 
 Render::~Render() {

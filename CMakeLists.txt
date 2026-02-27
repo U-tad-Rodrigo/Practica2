@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Practica2)
+project(ProgGrafica_2024)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,20 +17,20 @@ include_directories(
 link_directories(${CMAKE_SOURCE_DIR}/externalLibs/glfw/lib)
 
 # ============================================================================
-# PROYECTO: Practica2
+# PROYECTO: ProgGrafica_2024
 # ============================================================================
 add_executable(Practica2
-        Practica2/MainPractica2.cpp
-        Practica2/common.h
-        Practica2/Vertex.h
-        Practica2/InputManager.cpp
-        Practica2/InputManager.h
-        Practica2/Object3D.cpp
-        Practica2/Object3D.h
-        Practica2/libMath.cpp
-        Practica2/libMath.h
-        Practica2/Render.cpp
-        Practica2/Render.h
+        ProgGrafica_2024/MainPractica2.cpp
+        ProgGrafica_2024/common.h
+        ProgGrafica_2024/Vertex.h
+        ProgGrafica_2024/InputManager.cpp
+        ProgGrafica_2024/InputManager.h
+        ProgGrafica_2024/Object3D.cpp
+        ProgGrafica_2024/Object3D.h
+        ProgGrafica_2024/libMath.cpp
+        ProgGrafica_2024/libMath.h
+        ProgGrafica_2024/Render.cpp
+        ProgGrafica_2024/Render.h
 )
 target_include_directories(Practica2 PRIVATE ${CMAKE_SOURCE_DIR}/Practica2)
 target_link_libraries(Practica2 glfw3 opengl32)
