@@ -100,7 +100,8 @@ void Render::drawGL() {
 
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
-        glMultMatrixf(obj->modelMatrix.mat);
+        matrix4x4f glMatrix = transpose(obj->modelMatrix);
+        glMultMatrixf(glMatrix.mat);
 
         glBindVertexArray(bufferObjects[obj].VAO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferObjects[obj].EBO);

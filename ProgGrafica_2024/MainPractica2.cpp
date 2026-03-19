@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 
     Object3D triangulo;
     triangulo.createTriangle();
+    triangulo.position.y = -0.5f;
 
     render.putObject(&triangulo);
     render.mainLoop();

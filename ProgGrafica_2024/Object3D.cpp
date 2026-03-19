@@ -32,18 +32,19 @@ void Object3D::createTriangle() {
 
 void Object3D::move(double timeStep) {
     if (InputManager::keyMap[GLFW_KEY_D]) {
-        rotation.y += 90.0f * (float)timeStep;
+        rotation.x += 3 * (float)timeStep;
     }
     if (InputManager::keyMap[GLFW_KEY_A]) {
-        rotation.y -= 90.0f * (float)timeStep;
+        rotation.x -= 3 * (float)timeStep;
     }
 
     updateModelMatrix();
 }
 
 void Object3D::updateModelMatrix() {
+    vec4float qRotation = make_quaternion(1, 1, 0,rotation.x );
     matrix4x4f translateMatrix = make_translate(position.x, position.y, position.z);
-    matrix4x4f rotateMatrix = make_rotate(rotation.x, rotation.y, rotation.z);
+    matrix4x4f rotateMatrix = make_rotate_quaternion(qRotation);
     matrix4x4f scaleMatrix = make_scale(scale.x, scale.y, scale.z);
     modelMatrix = translateMatrix * rotateMatrix * scaleMatrix;
 }
